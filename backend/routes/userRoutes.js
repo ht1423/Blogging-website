@@ -5,20 +5,13 @@ require('dotenv').config()
 const bcrypt = require('bcryptjs')
 const {zodUserUpdateSchema } = require('../zod')
 const authMiddleware = require('../middleware/authMiddleware')
+const checkIfUserExistsMiddleware = require('../middleware/checkUserMiddleware')
 
-router.get('/profile', authMiddleware, async (req,res) => {
+router.get('/profile', authMiddleware, checkIfUserExistsMiddleware, async (req,res) => {
 
-    const userId = req.user.userId
+    const user = req.foundUser
 
     try {
-
-        const user = await User.findById(userId).select('-password')
-
-        if(!user){
-            return res.status(404).json({
-                msg: "User not found"
-            })
-        }
 
         return res.json({
             user
@@ -34,7 +27,7 @@ router.get('/profile', authMiddleware, async (req,res) => {
     }
 })
 
-router.put('/update', authMiddleware, async (req,res) => {
+router.put('/update', authMiddleware, checkIfUserExistsMiddleware, async (req,res) => {
 
     const userId = req.user.userId
 
@@ -53,7 +46,7 @@ router.put('/update', authMiddleware, async (req,res) => {
             req.body.password = await bcrypt.hash(req.body.password,salt)
         }
 
-        const user = await User.findByIdAndUpdate(
+        await User.findByIdAndUpdate(
             {
                 _id: userId
             },
@@ -64,15 +57,11 @@ router.put('/update', authMiddleware, async (req,res) => {
             }
         )
 
-        if(!user){
-            return res.status(404).json({
-                msg: "User not found"
-            })
-        }
+        const updatedUser = await User.findById(userId).select('-password')
 
         return res.json({
             msg: "User updated successfully",
-            user
+            updatedUser
         })
     }
 
@@ -85,19 +74,13 @@ router.put('/update', authMiddleware, async (req,res) => {
     }
 })
 
-router.delete('/delete', authMiddleware, async (req,res) => {
+router.delete('/delete', authMiddleware, checkIfUserExistsMiddleware, async (req,res) => {
     
     const userId = req.user.userId
 
     try {
 
-        const user = await User.findByIdAndDelete(userId)
-
-        if(!user){
-            return res.status(404).json({
-                msg: "User not found"
-            })
-        }
+        await User.findByIdAndDelete(userId)
 
         return res.json({
             msg: "User deleted successfully"

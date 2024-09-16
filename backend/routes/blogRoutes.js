@@ -3,22 +3,16 @@ const User = require('../models/User')
 const router = express.Router()
 require('dotenv').config()
 const authMiddleware = require('../middleware/authMiddleware')
+const checkIfUserExistsMiddleware = require('../middleware/checkUserMiddleware')
 
-router.get('/blogs', authMiddleware, async (req,res) => {
+router.get('/blogs', authMiddleware, checkIfUserExistsMiddleware, async (req,res) => {
 
-    const userId = req.user.userId
+    const user = req.foundUser
 
     try {
-        const user = await User.findById(userId).select('blogs')
-
-        if(!user){
-            return res.status(404).json({
-                msg: "User not found"
-            })
-        }
 
         return res.json({
-            user
+            blogs: user.blogs
         })
     }
 
@@ -31,22 +25,14 @@ router.get('/blogs', authMiddleware, async (req,res) => {
     }
 })
 
-router.get('/likedBlogs', authMiddleware, async (req,res) => {
+router.get('/likedBlogs', authMiddleware, checkIfUserExistsMiddleware, async (req,res) => {
 
-    const userId = req.user.userId
+    const user = req.foundUser
 
     try {
 
-        const user = await User.findById(userId).select('likedBlogs')
-
-        if(!user){
-            return res.status(404).json({
-                msg: "User not found"
-            })
-        }
-
         return res.json({
-            user
+            likedBlogs: user.likedBlogs
         })
     }
 
@@ -59,22 +45,14 @@ router.get('/likedBlogs', authMiddleware, async (req,res) => {
     }
 })
 
-router.get('/bookmarkedBlogs', authMiddleware, async (req,res) => {
+router.get('/bookmarkedBlogs', authMiddleware, checkIfUserExistsMiddleware, async (req,res) => {
 
-    const userId = req.user.userId
+    const user = req.foundUser
 
     try {
 
-        const user = await User.findById(userId).select('bookmarkedBlogs')
-
-        if(!user){
-            return res.status(404).json({
-                msg: "User not found"
-            })
-        }
-
         return res.json({
-            user
+            bookmarkedBlogs: user.bookmarkedBlogs
         })
     }
 
