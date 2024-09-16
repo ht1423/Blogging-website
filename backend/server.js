@@ -17,7 +17,8 @@ app.use(cors({
 app.use('/api/users', require('./routes/authRoutes'))
 app.use('/api/users', require('./routes/userRoutes'))
 app.use('/api/users', require('./routes/followRoutes'))
-app.use('/api/users', require('./routes/blogRoutes'))
+app.use('/api/blogs', require('./routes/blogRoutes'))
+app.use('/api/blogs', require('./routes/commentRoutes'))
 
 const PORT = process.env.PORT
 

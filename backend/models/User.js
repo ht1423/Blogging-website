@@ -36,6 +36,10 @@ const UserSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Blog'
     }],
+    comments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Blog'
+    }],
     followers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
@@ -48,10 +52,6 @@ const UserSchema = new mongoose.Schema({
         type: String,
         enum: ['writer','reader','admin'],
         default: 'reader'
-    },
-    isVerified: {
-        type: Boolean,
-        default: false
     }
 },{
     timestamps: true

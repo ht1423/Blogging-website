@@ -60,6 +60,12 @@ router.put('/follow/:id', authMiddleware, checkIfUserExistsMiddleware, async (re
             })
         }
 
+        if(id === userId){
+            return res.status(400).json({
+                msg: "You cannot follow yourself"
+            })
+        }
+
         const updatedUser = await User.findByIdAndUpdate({
             _id: userId
         },{
@@ -112,13 +118,21 @@ router.put('/unfollow/:id', authMiddleware, checkIfUserExistsMiddleware, async (
             })
         }
 
-        user.following = user.following.filter(_id => !_id.equals(id)) 
+        const followersLength = user.following.length
+
+        const updatedFollowersLength = user.following.filter(_id => !_id.equals(id)) 
+
+        if(followersLength === updatedFollowersLength.length){
+            return res.status(400).json({
+                msg: "Either you want to unfollow yourself which can't be done or u are trying to unfollow someone u have not followed"
+            })
+        }
 
         await User.findByIdAndUpdate({
             _id: userId
         },{
             $set: {
-                following: user.following
+                following: updatedFollowersLength
             }
         },{
             new: true
@@ -136,8 +150,11 @@ router.put('/unfollow/:id', authMiddleware, checkIfUserExistsMiddleware, async (
             new: true
         })
 
+        const updatedUser = await User.findById(userId)
+
         return res.json({
-            user
+            msg: "Done",
+            updatedUser
         })
     }
 
